@@ -1,3 +1,4 @@
+import controller.Session
 import helper.ServerHelper
 import model.Player
 
@@ -6,6 +7,5 @@ import model.Player
  */
 object Main extends App {
 
-  ServerHelper.registerWithServer(new Player(1))
-
+  new Session().registerWithServer()
 }

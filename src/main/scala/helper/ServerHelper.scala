@@ -20,8 +20,8 @@ object ServerHelper {
     "shoot"    -> new URL("http://localhost:9000/shoot")
   )
 
-  def registerWithServer(p: Player): Option[List[ShipListItem]] = {
-    val requestBody = RequestBody(new JSONObject(Map("userid" -> p.id)).toString(),
+  def registerWithServer(id: Int): Option[List[ShipListItem]] = {
+    val requestBody = RequestBody(new JSONObject(Map("userid" -> id)).toString(),
       APPLICATION_JSON)
     val response = httpClient.post(urls.get("register").get, Some(requestBody))
 
@@ -29,11 +29,33 @@ object ServerHelper {
       None
     } else {
       val jsonShipList = JSON.parseFull(response.body.asString).get.asInstanceOf[Map[String, List[Map[String, Any]]]].get("ships").get
-      println(Ship.parseShiplist(jsonShipList, Nil))
+      Some(Ship.parseShiplist(jsonShipList, Nil))
+    }
+  }
+
+  def setShip(shipType: String, x: String, y: String, d: String, id: Int): Option[String] = {
+    val requestBody = RequestBody(new JSONObject(
+      Map(
+        "userid" -> id,
+        "shiptype" -> shipType,
+        "x" -> x,
+        "y" -> y,
+        "direction" -> d
+      )
+    ).toString(),
+      APPLICATION_JSON)
+
+    val response = httpClient.post(urls.get("setship").get, Some(requestBody))
+
+    if(!response.status.isSuccess) {
       None
+    } else {
+      Some("00000000000000")
     }
 
   }
+
+
 
 
 

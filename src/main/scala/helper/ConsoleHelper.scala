@@ -8,13 +8,13 @@ import scala.io.StdIn._
  */
 object ConsoleHelper {
 
-  def getShipCoordinatesFromConsole(s: String): (String, Int, String) = {
+  def getShipCoordinatesFromConsole(s: String): (String, String, String) = {
     val userInput = getInputFromConsole(s)
     val splittedInput = userInput.split(" ")
 
     (
       splittedInput(0),
-      Integer.parseInt(splittedInput(1)),
+      splittedInput(1),
       splittedInput(2)
     )
   }
