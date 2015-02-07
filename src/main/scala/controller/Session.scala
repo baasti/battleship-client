@@ -34,11 +34,39 @@ class Session {
   }
 
   def waitForOpponent(p: Player): Unit = {
+
     ServerHelper.waitForOpponent(p) match {
-      case Some(x) => {
+      case PollResponse(map: String, Some(winner: Int), actions: List[PlayerAction]) => {
+        println("Du hast leider verloren. Deine Flotte wurde ausgelöscht.")
+        println("Gegnernische Aktionen")
+        actions.foreach(a => {
+          println(
+            a.hitType + " auf " + a.coords._1 + ", " + a.coords._2 + "!" +
+              (if(a.destroyed != None) { " " + a.destroyed.get + " zerstört!" } else {""})
+          )
+        })
+        println("Deine Karte")
+        ConsoleHelper.printArray(map)
+      }
+      case PollResponse(map: String, _, Nil) => {
         println("Du bist dran!")
         println("Dein Spielfeld: ")
-        ConsoleHelper.printArray(x)
+        ConsoleHelper.printArray(map)
+        println("Bisherige Schüsse")
+        ConsoleHelper.printArray(p.shots)
+        shoot(p)
+      }
+      case PollResponse(map: String, _, actions: List[PlayerAction]) => {
+        println("Du bist dran!")
+        println("Gegnernische Aktionen")
+        actions.foreach(a => {
+          println(
+            a.hitType + " auf " + a.coords._1 + ", " + a.coords._2 + "!" +
+              (if(a.destroyed != None) { " " + a.destroyed.get + " zerstört!" } else {""})
+          )
+        })
+        println("Dein Spielfeld: ")
+        ConsoleHelper.printArray(map)
         println("Bisherige Schüsse")
         ConsoleHelper.printArray(p.shots)
         shoot(p)

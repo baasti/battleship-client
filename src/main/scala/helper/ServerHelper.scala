@@ -55,7 +55,7 @@ object ServerHelper {
 
   }
 
-  def waitForOpponent(p: Player): Option[String] = {
+  def waitForOpponent(p: Player): PollResponse = {
     val requestBody = RequestBody(new JSONObject(Map("userid" -> p.id)).toString(),
       APPLICATION_JSON)
 
@@ -67,7 +67,6 @@ object ServerHelper {
     } else {
       println(response.body.asString)
       PollResponse.parseFromJson(JSON.parseFull(response.body.asString).get.asInstanceOf[Map[String, Any]])
-      Some(JSON.parseFull(response.body.asString).get.asInstanceOf[Map[String, Any]].get("map").get.asInstanceOf[String])
     }
   }
 
