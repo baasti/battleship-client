@@ -1,10 +1,11 @@
 package model
 
 
-class Ship(val name: String, val form: IndexedSeq[IndexedSeq[Boolean]])
+case class Ship(name: String, form: IndexedSeq[IndexedSeq[Boolean]]) {
+
+}
 
 object Ship {
-
   def parseShiplist(l: List[Map[String, Any]], s: List[ShipListItem]): List[ShipListItem] = {
     l match {
       case Nil

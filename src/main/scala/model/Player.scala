@@ -9,12 +9,12 @@ import model.HitType.HitType
 class Player(
               val id: Int,
               val ships: List[ShipListItem],
-              val shots: IndexedSeq[IndexedSeq[HitType]] = for(i <- 0 to 9) yield for(j <- 0 to 9) yield HitType.None
+              val shots: Board = Board.generateEmptyBoard()
               )
 {
 
-  def this(id: Int, shots: IndexedSeq[IndexedSeq[HitType]]) = {
-    this(id, Nil, shots)
+  def this(id: Int, b: Board) = {
+    this(id, Nil, b)
   }
 
   def placeShip(s: Ship): String = {
@@ -39,11 +39,14 @@ class Player(
 
     val shootResponse = ServerHelper.shoot(xCoord, yCoord, this)
 
-    val newShots = for(i <- 0 until shots.length)
-                    yield for(j <- 0 until shots(0).length)
-                      yield if(yCoord.toInt == i && j == xCoord.toInt) shootResponse.hitType else shots(i)(j)
+    shots.setShot(xCoord.toInt, yCoord.toInt, shootResponse.hitType)
 
-    (new Player(this.id, newShots), shootResponse)
+    (new Player(
+        this.id,
+        shots.setShot(xCoord.toInt, yCoord.toInt, shootResponse.hitType)
+      ),
+      shootResponse
+    )
   }
 
 }

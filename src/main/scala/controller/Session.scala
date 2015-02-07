@@ -22,7 +22,7 @@ class Session {
   def placeShips(p: Player): Unit = {
     val board = p.placeShip(p.ships.head.ship)
 
-    ConsoleHelper.printArray(board)
+    ConsoleHelper.printArray(Board.parseFromString(board))
 
     p.ships match {
       case ShipListItem(_, 1) :: Nil => waitForOpponent(new Player(p.id, Nil))
@@ -36,7 +36,7 @@ class Session {
   def waitForOpponent(p: Player): Unit = {
 
     ServerHelper.waitForOpponent(p) match {
-      case PollResponse(map: String, Some(winner: Int), actions: List[PlayerAction]) => {
+      case PollResponse(board: Board, Some(winner: Int), actions: List[PlayerAction]) => {
         println("Du hast leider verloren. Deine Flotte wurde ausgelöscht.")
         println("Gegnernische Aktionen")
         actions.foreach(a => {
@@ -46,17 +46,17 @@ class Session {
           )
         })
         println("Deine Karte")
-        ConsoleHelper.printArray(map)
+        ConsoleHelper.printArray(board)
       }
-      case PollResponse(map: String, _, Nil) => {
+      case PollResponse(board: Board, _, Nil) => {
         println("Du bist dran!")
         println("Dein Spielfeld: ")
-        ConsoleHelper.printArray(map)
+        ConsoleHelper.printArray(board)
         println("Bisherige Schüsse")
         ConsoleHelper.printArray(p.shots)
         shoot(p)
       }
-      case PollResponse(map: String, _, actions: List[PlayerAction]) => {
+      case PollResponse(board: Board, _, actions: List[PlayerAction]) => {
         println("Du bist dran!")
         println("Gegnernische Aktionen")
         actions.foreach(a => {
@@ -66,7 +66,7 @@ class Session {
           )
         })
         println("Dein Spielfeld: ")
-        ConsoleHelper.printArray(map)
+        ConsoleHelper.printArray(board)
         println("Bisherige Schüsse")
         ConsoleHelper.printArray(p.shots)
         shoot(p)
