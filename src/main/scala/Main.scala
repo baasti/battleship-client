@@ -8,4 +8,6 @@ import model.Player
 object Main extends App {
 
   new Session().registerWithServer()
+
+ // new Player(1, Nil).shoot()
 }

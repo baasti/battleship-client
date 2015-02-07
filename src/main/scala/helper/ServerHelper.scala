@@ -2,7 +2,7 @@ package helper
 
 import java.net.URL
 
-import model.{ShipListItem, Ship, Player}
+import model._
 import uk.co.bigbeeconsultants.http.HttpClient
 import uk.co.bigbeeconsultants.http.header.MediaType._
 import uk.co.bigbeeconsultants.http.request.RequestBody
@@ -50,13 +50,46 @@ object ServerHelper {
     if(!response.status.isSuccess) {
       None
     } else {
-      Some("00000000000000")
+      Some(JSON.parseFull(response.body.asString).get.asInstanceOf[Map[String, String]].get("map").get)
     }
 
   }
 
+  def waitForOpponent(p: Player): Option[String] = {
+    val requestBody = RequestBody(new JSONObject(Map("userid" -> p.id)).toString(),
+      APPLICATION_JSON)
 
+    val response = httpClient.put(urls.get("poll").get, requestBody)
 
+    if(!response.status.isSuccess) {
+      Thread.sleep(5000)
+      waitForOpponent(p)
+    } else {
+      println(response.body.asString)
+      PollResponse.parseFromJson(JSON.parseFull(response.body.asString).get.asInstanceOf[Map[String, Any]])
+      Some(JSON.parseFull(response.body.asString).get.asInstanceOf[Map[String, Any]].get("map").get.asInstanceOf[String])
+    }
+  }
 
+  def shoot(x: String, y: String, p: Player): ShootResponse = {
+    val requestBody = RequestBody(new JSONObject(
+      Map(
+        "userid" -> p.id,
+        "x" -> x,
+        "y" -> y
+      )).toString(),
+      APPLICATION_JSON
+    )
 
+    val response = httpClient.put(urls.get("shoot").get, requestBody)
+
+    if(!response.status.isSuccess) {
+      println("Something went wrong, retrying..")
+      println(response.status.toString)
+      Thread.sleep(10000)
+      shoot(x, y, p)
+    } else {
+      ShootResponse.parseFromJson(JSON.parseFull(response.body.asString).get.asInstanceOf[Map[String, Any]])
+    }
+  }
 }
