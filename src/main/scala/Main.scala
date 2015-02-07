@@ -1,5 +1,5 @@
 import controller.Session
-import helper.ServerHelper
+import helper.{ConsoleHelper, ServerHelper}
 import model.{Board, Player}
 
 /**
@@ -8,6 +8,8 @@ import model.{Board, Player}
 object Main extends App {
 
   new Session().registerWithServer()
+
+  //ConsoleHelper.getShipCoordinatesFromConsole("hi ")
 
  // new Player(1, Nil).shoot()
 

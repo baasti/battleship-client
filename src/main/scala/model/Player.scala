@@ -18,10 +18,9 @@ class Player(
   }
 
   def placeShip(s: Ship): String = {
-    println("You're now placing a " + s.name)
-    println("Form: " + s.form)
+    ConsoleHelper.printShip(s)
 
-    val coords = ConsoleHelper.getShipCoordinatesFromConsole("Please enter Coordinates (Letter Number Direction): ")
+    val coords = ConsoleHelper.getShipCoordinatesFromConsole()
 
     val result = ServerHelper.setShip(s.name, coords._2, coords._1, coords._3, id)
 
@@ -32,21 +31,25 @@ class Player(
   }
 
   def shoot(): (Player, ShootResponse) = {
-    val coords = ConsoleHelper.getCoordinatesFromConsole("Please enter Coordinates (Letter Number): ")
-    println(coords._1 + " " + coords._2)
+    val coords = ConsoleHelper.getCoordinatesFromConsole()
     val xCoord = coords._2
     val yCoord = CharacterCoordinate(coords._1)
 
-    val shootResponse = ServerHelper.shoot(xCoord, yCoord, this)
+    if(!shots.isUnshot(xCoord.toInt, yCoord.toInt)) {
+      println("Da hast du schonmal hingeschossen..")
+      shoot()
+    } else {
+      val shootResponse = ServerHelper.shoot(xCoord, yCoord, this)
 
-    shots.setShot(xCoord.toInt, yCoord.toInt, shootResponse.hitType)
+      shots.setShot(xCoord.toInt, yCoord.toInt, shootResponse.hitType)
 
-    (new Player(
-        this.id,
-        shots.setShot(xCoord.toInt, yCoord.toInt, shootResponse.hitType)
-      ),
-      shootResponse
-    )
+      (new Player(
+          this.id,
+          shots.setShot(xCoord.toInt, yCoord.toInt, shootResponse.hitType)
+        ),
+        shootResponse
+      )
+    }
   }
 
 }

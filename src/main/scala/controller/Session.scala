@@ -1,11 +1,11 @@
 package controller
 
+import java.rmi.UnexpectedException
+import java.util.concurrent.TimeoutException
+
 import helper.{ConsoleHelper, ServerHelper}
 import model._
 
-/**
- * Created by Basti on 04.02.15.
- */
 class Session {
 
   def registerWithServer(): Unit = {
@@ -14,22 +14,33 @@ class Session {
     val shipsOption = ServerHelper.registerWithServer(id)
 
     shipsOption match {
-      case None => println("stirb")
+      case None => throw new TimeoutException
       case Some(ships) => placeShips(new Player(id, ships))
     }
   }
 
   def placeShips(p: Player): Unit = {
     val board = p.placeShip(p.ships.head.ship)
-
     ConsoleHelper.printArray(Board.parseFromString(board))
 
     p.ships match {
-      case ShipListItem(_, 1) :: Nil => waitForOpponent(new Player(p.id, Nil))
-      case ShipListItem(s: Ship, i: Int) :: Nil => placeShips(new Player(p.id, ShipListItem(s, i - 1) :: Nil))
-      case ShipListItem(_, 1) :: xs  => placeShips(new Player(p.id, p.ships.tail))
-      case ShipListItem(s: Ship, i: Int) :: xs => placeShips(new Player(p.id, ShipListItem(s, i - 1) :: xs))
-      case _ => println("???")
+      case ShipListItem(_, 1) :: Nil => {
+        // last ship placed -> game begins
+        waitForOpponent(new Player(p.id, Nil))
+      }
+      case ShipListItem(s: Ship, i: Int) :: Nil => {
+        // placed a ship, but not the last of said type
+        placeShips(new Player(p.id, ShipListItem(s, i - 1) :: Nil))
+      }
+      case ShipListItem(_, 1) :: xs  => {
+        // placed a ship, there are ships of other types remaining
+        placeShips(new Player(p.id, p.ships.tail))
+      }
+      case ShipListItem(s: Ship, i: Int) :: xs => {
+        // placed a ship, there are ships of other types and ships of <<s>>'s type remaining
+        placeShips(new Player(p.id, ShipListItem(s, i - 1) :: xs))
+      }
+      case _ => throw new UnexpectedException("i didn't expect that")
     }
   }
 
@@ -37,63 +48,41 @@ class Session {
 
     ServerHelper.waitForOpponent(p) match {
       case PollResponse(board: Board, Some(winner: Int), actions: List[PlayerAction]) => {
-        println("Du hast leider verloren. Deine Flotte wurde ausgelöscht.")
-        println("Gegnernische Aktionen")
-        actions.foreach(a => {
-          println(
-            a.hitType + " auf " + a.coords._1 + ", " + a.coords._2 + "!" +
-              (if(a.destroyed != None) { " " + a.destroyed.get + " zerstört!" } else {""})
-          )
-        })
-        println("Deine Karte")
-        ConsoleHelper.printArray(board)
+        // the other player has won the game
+        ConsoleHelper.printDefeatMessage(board, actions)
       }
       case PollResponse(board: Board, _, Nil) => {
-        println("Du bist dran!")
-        println("Dein Spielfeld: ")
-        ConsoleHelper.printArray(board)
-        println("Bisherige Schüsse")
-        ConsoleHelper.printArray(p.shots)
+        // the other player finished setting his ships
+        ConsoleHelper.printFirstTurnMessage(board, p.shots)
         shoot(p)
       }
       case PollResponse(board: Board, _, actions: List[PlayerAction]) => {
-        println("Du bist dran!")
-        println("Gegnernische Aktionen")
-        actions.foreach(a => {
-          println(
-            a.hitType + " auf " + a.coords._1 + ", " + a.coords._2 + "!" +
-              (if(a.destroyed != None) { " " + a.destroyed.get + " zerstört!" } else {""})
-          )
-        })
-        println("Dein Spielfeld: ")
-        ConsoleHelper.printArray(board)
-        println("Bisherige Schüsse")
-        ConsoleHelper.printArray(p.shots)
+        // the other player finished his turn
+        ConsoleHelper.printYourTurnMessage(board, p.shots, actions)
         shoot(p)
       }
     }
   }
 
   def shoot(player: Player): Unit = {
-
     player.shoot() match {
       case (p: Player, ShootResponse(HitType.Hit, _, _)) => {
-        println("Treffer, du bist nochmal dran!")
-        ConsoleHelper.printArray(p.shots)
+        // Hit
+        ConsoleHelper.printHitMessage(p.shots)
         shoot(p)
       }
       case (p: Player, ShootResponse(_, Some(winner: Int), _)) => {
-        println("Treffer und versenkt. Du hast die Flotte deines Gegner ausgelöscht!")
-        ConsoleHelper.printArray(p.shots)
+        // Hit and destroyed all other ships -> Game ends
+        ConsoleHelper.printVictoryMessage(p.shots)
       }
-      case (p: Player, ShootResponse(HitType.HitAndSunk, _, destroyed: Option[String])) => {
-        println("Super, du hast den " + destroyed + " des Gegners zerstört!")
-        println("Du bist nochmal dran!")
-        ConsoleHelper.printArray(p.shots)
+      case (p: Player, ShootResponse(HitType.HitAndSunk, _, Some(destroyed: String))) => {
+        // Hit and destroyed one of the enemies ships
+        ConsoleHelper.printHitAndDestroyedMessage(p.shots, destroyed)
         shoot(p)
       }
       case (p: Player, ShootResponse(HitType.Miss, _, _)) => {
-        println("Daneben, der Gegner ist dran..")
+        // Missed -> other player's turn
+        ConsoleHelper.printMissMessage(p.shots)
         waitForOpponent(p)
       }
     }

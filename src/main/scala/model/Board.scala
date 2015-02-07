@@ -14,6 +14,10 @@ case class Board(board: IndexedSeq[IndexedSeq[HitType]]) {
           yield if(y == i && j == x) hitType else board(i)(j)
     )
   }
+
+  def isUnshot(x: Int, y: Int): Boolean = {
+    board(y)(x) == HitType.None
+  }
 }
 
 object Board {

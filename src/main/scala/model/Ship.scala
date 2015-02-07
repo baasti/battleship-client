@@ -23,7 +23,6 @@ object Ship {
   }
 
   def coordinateListToArray(l: List[List[Double]]): IndexedSeq[IndexedSeq[Boolean]] = {
-    println(l)
     val xMax = l.map(l => l.head.toInt).reduceLeft((x, y) => if (x > y) x else y)
     val yMax = l.map(l => l.tail.head.toInt).reduceLeft((x, y) => if (x > y) x else y)
 

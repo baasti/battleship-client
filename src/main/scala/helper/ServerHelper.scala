@@ -28,8 +28,10 @@ object ServerHelper {
     if(!response.status.isSuccess) {
       None
     } else {
+      println(response.body.asString)
       val jsonShipList = JSON.parseFull(response.body.asString).get.asInstanceOf[Map[String, List[Map[String, Any]]]].get("ships").get
-      Some(Ship.parseShiplist(jsonShipList, Nil))
+      println(jsonShipList)
+      Some(Ship.parseShiplist(jsonShipList, Nil).reverse)
     }
   }
 
@@ -65,7 +67,6 @@ object ServerHelper {
       Thread.sleep(5000)
       waitForOpponent(p)
     } else {
-      println(response.body.asString)
       PollResponse.parseFromJson(JSON.parseFull(response.body.asString).get.asInstanceOf[Map[String, Any]])
     }
   }
@@ -84,7 +85,6 @@ object ServerHelper {
 
     if(!response.status.isSuccess) {
       println("Something went wrong, retrying..")
-      println(response.status.toString)
       Thread.sleep(10000)
       shoot(x, y, p)
     } else {
