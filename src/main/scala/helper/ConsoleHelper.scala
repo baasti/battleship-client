@@ -6,7 +6,10 @@ import model.HitType.HitType
 import scala.io.StdIn._
 
 object ConsoleHelper {
+
   def printShip(ship: Ship): Unit = {
+    println("Du setzt jetzt ein " + ship.name)
+    print("Form: ")
     ship.form.foreach(outer => {
       outer.foreach(inner => if(inner) print("S") else print("W"))
       println()
