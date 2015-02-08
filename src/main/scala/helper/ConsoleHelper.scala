@@ -39,7 +39,7 @@ object ConsoleHelper {
     println("Letzter Zug des Gegners:")
     actions.foreach(a => {
       println(
-        a.hitType + " auf " + a.coords._2.asInstanceOf[Char] + " " + a.coords._1 + "!" +
+        a.hitType + " auf " + a.coords._2 + " " + a.coords._1 + "!" +
           (if(a.destroyed != None) { " (" + a.destroyed.get + " zerstört!)" } else {""})
       )
     })

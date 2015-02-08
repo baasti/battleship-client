@@ -1,7 +1,6 @@
 package model
 
 import helper.{ServerHelper, ConsoleHelper}
-import model.HitType.HitType
 
 /**
  * Created by Basti on 04.02.15.

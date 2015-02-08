@@ -67,6 +67,7 @@ object ServerHelper {
       Thread.sleep(5000)
       waitForOpponent(p)
     } else {
+      println(response.body.asString)
       PollResponse.parseFromJson(JSON.parseFull(response.body.asString).get.asInstanceOf[Map[String, Any]])
     }
   }
