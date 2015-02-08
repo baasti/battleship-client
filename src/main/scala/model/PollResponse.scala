@@ -1,8 +1,10 @@
 package model
 
-/**
- * Created by Basti on 07.02.15.
- */
+// represents a response to a poll
+// There are two distinct types: with and without actions. Without actions represents
+// the answer, the player gets, if the other player has set all of his ships (-> first turn)
+// as soon as there are actions, it's not a "first turn"
+
 case class PollResponse(board: Board, winner: Option[Int], actions: List[PlayerAction])
 
 object PollResponse {

@@ -1,8 +1,5 @@
 package model
 
-/**
- * Created by Basti on 08.12.14.
- */
 object HitType extends Enumeration {
   type HitType = Value
 

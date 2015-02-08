@@ -2,9 +2,8 @@ package model
 
 import model.HitType.HitType
 
-/**
- * Created by Basti on 07.02.15.
- */
+// represents a PlayerAction (e.g. Hit on A 3). If HitAndSunk the name of the sunken Ship
+// is provided
 case class PlayerAction(coords: (String, String), hitType: HitType, destroyed: Option[String])
 
 object PlayerAction {

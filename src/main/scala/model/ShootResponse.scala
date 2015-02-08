@@ -2,7 +2,8 @@ package model
 
 import model.HitType.HitType
 
-
+// models the response to a shootaction, in case the action ws the winning action won
+// is the player's id
 case class ShootResponse(hitType: HitType, won: Option[Int], destroyed: Option[String])
 
 object ShootResponse {

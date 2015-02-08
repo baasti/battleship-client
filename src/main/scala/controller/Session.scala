@@ -8,6 +8,7 @@ import model._
 
 class Session {
 
+  // entry point
   def registerWithServer(): Unit = {
     val id = scala.util.Random.nextInt(1000)
 
@@ -19,6 +20,7 @@ class Session {
     }
   }
 
+  // while there are still ships to place, this function calls itself recursively
   def placeShips(p: Player): Unit = {
     val board = p.placeShip(p.ships.head.ship)
     ConsoleHelper.printArray(Board.parseFromString(board))
@@ -44,8 +46,9 @@ class Session {
     }
   }
 
+  // there are two reasons for waiting: other player has not placed all of his ships
+  // or it's the other player's turn
   def waitForOpponent(p: Player): Unit = {
-
     ServerHelper.waitForOpponent(p) match {
       case PollResponse(board: Board, Some(winner: Int), actions: List[PlayerAction]) => {
         // the other player has won the game
@@ -64,6 +67,7 @@ class Session {
     }
   }
 
+  // after waiting the player can shoot as long as he hits ships of the other player
   def shoot(player: Player): Unit = {
     player.shoot() match {
       case (p: Player, ShootResponse(HitType.Hit, _, _)) => {
